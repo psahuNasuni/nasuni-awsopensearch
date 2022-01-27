@@ -126,9 +126,9 @@ variable "use_prefix" {
 }
 
 variable "domain_prefix" {
-  description = "String to be prefixed to search domain. Default: nct-nce-"
+  description = "String to be prefixed to search domain. Default: nasuni-labs"
   type        = string
-  default     = "nct-nce-"
+  default     = "nasuni-labs"
 }
 
 variable "dedicated_master_threshold" {
