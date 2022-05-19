@@ -18,12 +18,12 @@ variable "domain_name" {
 variable "es_region" {
   description = "Region for Elasticsearch cluster"
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-2"
 }
 variable "es_version" {
-  description = "Version of Elasticsearch to deploy (default 7.10)"
+  description = "Version of Elasticsearch to deploy (allowed Elasticsearch Versions are: [OpenSearch_1.2, OpenSearch_1.1, OpenSearch_1.0, 7.10, 7.9, 7.8, 7.7, 7.4, 7.1, 6.8, 6.7, 6.5, 6.4, 6.3, 6.2, 6.0, 5.6, 5.5, 5.3, 5.1, 2.3, 1.5)"
   type        = string
-  default     = "7.10"
+  default     = "OpenSearch_1.2"
 }
 
 variable "instance_type" {
@@ -77,7 +77,7 @@ variable "es_zone_awareness_count" {
 variable "ebs_volume_size" {
   description = "Optionally use EBS volumes for data storage by specifying volume size in GB (default 0)"
   type        = number
-  default     = 50
+  default     = 500
 }
 
 variable "ebs_volume_type" {
@@ -112,9 +112,9 @@ variable "tags" {
   description = "tags to apply to all resources"
   type        = map(string)
   default = {
-    Application     = "Nasuni Analytics Connector with Elasticsearch"
+    Application     = "Nasuni Analytics Connector with OpenSearch"
     Developer       = "Nasuni"
-    PublicationType = "Nasuni Community Tool"
+    PublicationType = "Nasuni Labs"
     Version         = "V 0.1"
   }
 }
@@ -201,9 +201,9 @@ variable "tls_security_policy" {
 
 variable "aws_profile" {
   type    = string
-  default = "default"
+  default = "nasuni"
 }
 
 variable "admin_secret" {
-  default = "nct/nce/os/admin"
+  default = "nasuni-labs-os-admin"
 }
