@@ -207,3 +207,15 @@ variable "aws_profile" {
 variable "admin_secret" {
   default = "nasuni-labs-os-admin"
 }
+
+variable "user_vpc_id" {
+  default = ""
+}
+
+variable "user_subnet_id" {
+  default = ""
+}
+
+variable "use_private_ip" {
+  default = ""
+}

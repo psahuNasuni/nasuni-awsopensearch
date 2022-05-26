@@ -42,6 +42,13 @@ resource "random_id" "es_unique_id" {
   byte_length = 3
 }
 
+data "aws_security_groups" "es" {
+  filter {
+    name   = "vpc-id"
+    values = [var.user_vpc_id]
+  }
+}
+
 resource "aws_elasticsearch_domain" "es" {
   count = false == local.inside_vpc ? 1 : 0
 
@@ -114,6 +121,13 @@ resource "aws_elasticsearch_domain" "es" {
 
   snapshot_options {
     automated_snapshot_start_hour = var.snapshot_start_hour
+  }
+
+  vpc_options {
+    subnet_ids = [
+      var.user_subnet_id
+    ]
+    security_group_ids = data.aws_security_groups.es.ids[0]
   }
 
   tags = merge(
