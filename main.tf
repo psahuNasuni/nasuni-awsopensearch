@@ -124,10 +124,8 @@ resource "aws_elasticsearch_domain" "es" {
   }
 
   vpc_options {
-    subnet_ids = [
-      var.user_subnet_id
-    ]
-    security_group_ids = data.aws_security_groups.es.ids[0]
+    subnet_ids = [var.user_subnet_id]
+    security_group_ids = [data.aws_security_groups.es.ids[0]]
   }
 
   tags = merge(
