@@ -158,6 +158,7 @@ resource "aws_secretsmanager_secret_version" "admin_secret" {
   secret_string = jsonencode(local.admin_secret_data_to_update)
   depends_on = [
     aws_elasticsearch_domain.es,
+    data.aws_secretsmanager_secret.admin_secret,
   ]
 } 
 
