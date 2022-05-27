@@ -42,6 +42,13 @@ resource "random_id" "es_unique_id" {
   byte_length = 3
 }
 
+data "aws_security_groups" "es" {
+  filter {
+    name   = "vpc-id"
+    values = [var.user_vpc_id]
+  }
+}
+
 resource "aws_elasticsearch_domain" "es" {
   count = false == local.inside_vpc ? 1 : 0
 
@@ -116,6 +123,11 @@ resource "aws_elasticsearch_domain" "es" {
     automated_snapshot_start_hour = var.snapshot_start_hour
   }
 
+  vpc_options {
+    subnet_ids = [var.user_subnet_id]
+    security_group_ids = [data.aws_security_groups.es.ids[0]]
+  }
+
   tags = merge(
     {
       "Domain" = lower(local.domain_name)
@@ -144,6 +156,7 @@ resource "aws_secretsmanager_secret_version" "admin_secret" {
   secret_string = jsonencode(local.admin_secret_data_to_update)
   depends_on = [
     aws_elasticsearch_domain.es,
+    data.aws_secretsmanager_secret.admin_secret,
   ]
 } 
 
