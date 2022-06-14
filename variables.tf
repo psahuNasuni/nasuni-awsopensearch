@@ -204,6 +204,11 @@ variable "aws_profile" {
   default = "nasuni"
 }
 
+variable "es_log_type" {
+  type    = string
+  description = "Type of Elasticsearch log. Valid values: INDEX_SLOW_LOGS, SEARCH_SLOW_LOGS, ES_APPLICATION_LOGS, AUDIT_LOGS."
+  default = "ES_APPLICATION_LOGS"
+}
 variable "admin_secret" {
   default = "nasuni-labs-os-admin"
 }
