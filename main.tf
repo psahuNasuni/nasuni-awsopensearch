@@ -99,7 +99,7 @@ resource "aws_elasticsearch_domain" "es" {
   log_publishing_options {
     cloudwatch_log_group_arn = aws_cloudwatch_log_group.es-log-group.arn
     enabled                  = true
-    log_type                 = "INDEX_SLOW_LOGS"
+    log_type                 = var.es_log_type
   }
 
 
