@@ -52,7 +52,7 @@ data "aws_security_groups" "es" {
 resource "aws_elasticsearch_domain" "es" {
   count = false == local.inside_vpc ? 1 : 0
 
-  depends_on = [aws_iam_service_linked_role.es]
+  depends_on = [aws_iam_service_linked_role.es,aws_cloudwatch_log_group.es-log-group]
 
   domain_name           = lower(local.domain_name)
   elasticsearch_version = var.es_version
@@ -140,7 +140,7 @@ resource "aws_elasticsearch_domain_policy" "es_management_access" {
 }
 ##########################################
 resource "aws_cloudwatch_log_group" "es-log-group" {
-  name = "es-log-group"
+  name = "${local.domain_name}-log-group"
 }
 
 resource "aws_cloudwatch_log_resource_policy" "es-log-policy" {
