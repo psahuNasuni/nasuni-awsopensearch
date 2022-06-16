@@ -196,7 +196,7 @@ variable "enforce_https" {
 variable "tls_security_policy" {
   description = "The name of the TLS security policy that needs to be applied to the HTTPS endpoint. Example values: Policy-Min-TLS-1-0-2019-07 and Policy-Min-TLS-1-2-2019-07. Terraform will only perform drift detection if a configuration value is provided."
   type        = string
-  default     = "ABCPolicy-Min-TLS-1-2-2019-07"
+  default     = "Policy-Min-TLS-1-2-2019-07"
 }
 
 variable "aws_profile" {
