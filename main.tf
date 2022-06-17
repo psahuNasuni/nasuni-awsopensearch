@@ -153,7 +153,7 @@ resource "aws_cloudwatch_log_resource_policy" "es-log-policy" {
     {
       "Effect": "Allow",
       "Principal": {
-        "Service": "es.amazonaws.com"
+        "Service": "opensearchservice.amazonaws.com"
       },
       "Action": [
         "logs:PutLogEvents",
