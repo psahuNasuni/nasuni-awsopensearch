@@ -27,7 +27,7 @@ data "aws_iam_policy_document" "es_vpc_management_access" {
 
 resource "aws_iam_service_linked_role" "es" {
   count            = var.create_iam_service_linked_role ? 1 : 0
-  aws_service_name = "es.amazonaws.com"
+  aws_service_name = "opensearchservice.amazonaws.com"
 }
 
 resource "aws_elasticsearch_domain" "es_vpc" {
