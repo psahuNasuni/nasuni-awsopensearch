@@ -48,11 +48,13 @@ data "aws_security_groups" "es" {
     values = [var.user_vpc_id]
   }
 }
-
+data "aws_iam_role" "os_service_linked_role" {
+  name = "AWSServiceRoleForAmazonOpenSearchService"
+}
 resource "aws_elasticsearch_domain" "es" {
   count = false == local.inside_vpc ? 1 : 0
 
-  depends_on = [aws_iam_service_linked_role.es,aws_cloudwatch_log_group.es-log-group]
+  depends_on = [data.aws_iam_role.os_service_linked_role,aws_cloudwatch_log_group.es-log-group]
 
   domain_name           = lower(local.domain_name)
   elasticsearch_version = var.es_version

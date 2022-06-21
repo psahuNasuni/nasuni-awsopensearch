@@ -4,12 +4,6 @@
 ##  Organization  :   Nasuni Labs   
 #########################################################
 
-variable "create_iam_service_linked_role" {
-  description = "Whether to create IAM service linked role for AWS ElasticSearch service. Can be only one per AWS account."
-  type        = bool
-  default     = false
-}
-
 variable "domain_name" {
   description = "Domain name for Elasticsearch cluster"
   type        = string

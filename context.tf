@@ -25,16 +25,9 @@ data "aws_iam_policy_document" "es_vpc_management_access" {
   }
 }
 
-resource "aws_iam_service_linked_role" "es" {
-  count            = var.create_iam_service_linked_role ? 1 : 0
-  aws_service_name = "opensearchservice.amazonaws.com"
-}
-
 resource "aws_elasticsearch_domain" "es_vpc" {
   count = local.inside_vpc ? 1 : 0
-
-  depends_on = [aws_iam_service_linked_role.es]
-
+  depends_on = [data.aws_iam_role.os_service_linked_role]
   domain_name           = lower(local.domain_name)
   elasticsearch_version = var.es_version
 
