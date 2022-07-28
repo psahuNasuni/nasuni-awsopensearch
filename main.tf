@@ -47,8 +47,59 @@ data "aws_security_groups" "es" {
 data "aws_iam_role" "os_service_linked_role" {
   name = "AWSServiceRoleForAmazonOpenSearchService"
 }
+
+resource "aws_security_group" "NAC_ES_SecurityGroup" {
+  count               = "" == var.security_group_id ? 1 : 0
+
+  name        = "nasuni-labs-SG-${var.es_region}"
+  description = "Allow adinistrators to access HTTP and SSH service in instance"
+  vpc_id      = data.aws_vpc.VPCtoBeUsed.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
+  }
+
+    ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
+  }
+
+      ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
+  }
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
+  }
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+   tags = {
+    Name            = "nasuni-labs-SG-${var.es_region}"
+    Application     = "Nasuni Analytics Connector with Elasticsearch"
+    Developer       = "Nasuni"
+    PublicationType = "Nasuni Labs"
+    Version         = "V 0.1"
+
+  }
+}
+
+
 locals {
-  SG_ID = "" == var.security_group_id ? aws_security_group.NAC_ES_SecurityGroup.id : var.security_group_id
+  SG_ID = "" == var.security_group_id ? aws_security_group.NAC_ES_SecurityGroup[0].id : var.security_group_id
 }
 resource "aws_elasticsearch_domain" "es" {
   count = false == local.inside_vpc ? 1 : 0
@@ -224,51 +275,3 @@ locals {
   }
 }
 
-resource "aws_security_group" "NAC_ES_SecurityGroup" {
-  count               = "" == var.security_group_id ? 1 : 0
-
-  name        = "nasuni-labs-SG-${var.es_region}"
-  description = "Allow adinistrators to access HTTP and SSH service in instance"
-  vpc_id      = data.aws_vpc.VPCtoBeUsed.id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
-  }
-
-    ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
-  }
-
-      ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
-  }
-  ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
-  }
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
-  }
-   tags = {
-    Name            = "nasuni-labs-SG-${var.es_region}"
-    Application     = "Nasuni Analytics Connector with Elasticsearch"
-    Developer       = "Nasuni"
-    PublicationType = "Nasuni Labs"
-    Version         = "V 0.1"
-
-  }
-}
