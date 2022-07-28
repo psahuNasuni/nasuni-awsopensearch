@@ -10,6 +10,10 @@ locals {
 }
 data "aws_caller_identity" "current" {}
 
+data "aws_vpc" "VPCtoBeUsed" {
+  id = var.user_vpc_id 
+}
+
 data "aws_iam_policy_document" "es_management_access" {
   count = false == local.inside_vpc ? 1 : 0
 
@@ -25,16 +29,8 @@ data "aws_iam_policy_document" "es_management_access" {
 
     principals {
       type = "AWS"
-      /* identifiers = ["*"] */
       identifiers = distinct(compact(var.management_iam_roles))
     }
-
-    /* condition {
-      test     = "IpAddress"
-      variable = "aws:SourceIp"
-
-      values = distinct(compact(var.management_public_ip_addresses))
-    } */
   }
 }
 
@@ -51,10 +47,13 @@ data "aws_security_groups" "es" {
 data "aws_iam_role" "os_service_linked_role" {
   name = "AWSServiceRoleForAmazonOpenSearchService"
 }
+locals {
+  SG_ID = "" == var.security_group_id ? aws_security_group.NAC_ES_SecurityGroup.id : var.security_group_id
+}
 resource "aws_elasticsearch_domain" "es" {
   count = false == local.inside_vpc ? 1 : 0
 
-  depends_on = [data.aws_iam_role.os_service_linked_role,aws_cloudwatch_log_group.es-log-group]
+  depends_on = [data.aws_iam_role.os_service_linked_role,aws_cloudwatch_log_group.es-log-group, aws_security_group.NAC_ES_SecurityGroup]
 
   domain_name           = lower(local.domain_name)
   elasticsearch_version = var.es_version
@@ -122,7 +121,8 @@ resource "aws_elasticsearch_domain" "es" {
 
   vpc_options {
     subnet_ids = [var.user_subnet_id]
-    security_group_ids = [data.aws_security_groups.es.ids[0]]
+    # security_group_ids = [data.aws_security_groups.es.ids[0]]
+    security_group_ids = [ local.SG_ID ]
   }
 
   tags = merge(
@@ -131,6 +131,7 @@ resource "aws_elasticsearch_domain" "es" {
     },
     var.tags,
   )
+  
 }
 
 resource "aws_elasticsearch_domain_policy" "es_management_access" {
@@ -219,6 +220,55 @@ locals {
     nac_es_admin_password = var.advanced_security_options_master_user_password
     es_region = var.es_region
     /* es_domain_status =  */
+
+  }
+}
+
+resource "aws_security_group" "NAC_ES_SecurityGroup" {
+  count               = "" == var.security_group_id ? 1 : 0
+
+  name        = "nasuni-labs-SG-${var.es_region}"
+  description = "Allow adinistrators to access HTTP and SSH service in instance"
+  vpc_id      = data.aws_vpc.VPCtoBeUsed.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
+  }
+
+    ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
+  }
+
+      ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
+  }
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.VPCtoBeUsed.cidr_block]
+  }
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+   tags = {
+    Name            = "nasuni-labs-SG-${var.es_region}"
+    Application     = "Nasuni Analytics Connector with Elasticsearch"
+    Developer       = "Nasuni"
+    PublicationType = "Nasuni Labs"
+    Version         = "V 0.1"
 
   }
 }

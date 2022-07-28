@@ -218,3 +218,8 @@ variable "user_subnet_id" {
 variable "use_private_ip" {
   default = ""
 }  
+
+variable "security_group_id" {
+  type    = string
+  default = ""
+}
