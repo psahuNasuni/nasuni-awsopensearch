@@ -219,7 +219,7 @@ variable "use_private_ip" {
   default = ""
 }  
 
-variable "security_group_id" {
+variable "nac_es_securitygroup_id" {
   type    = string
   default = ""
 }
