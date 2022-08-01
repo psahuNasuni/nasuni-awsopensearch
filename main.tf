@@ -25,16 +25,8 @@ data "aws_iam_policy_document" "es_management_access" {
 
     principals {
       type = "AWS"
-      /* identifiers = ["*"] */
       identifiers = distinct(compact(var.management_iam_roles))
     }
-
-    /* condition {
-      test     = "IpAddress"
-      variable = "aws:SourceIp"
-
-      values = distinct(compact(var.management_public_ip_addresses))
-    } */
   }
 }
 
@@ -42,15 +34,10 @@ resource "random_id" "es_unique_id" {
   byte_length = 3
 }
 
-data "aws_security_groups" "es" {
-  filter {
-    name   = "vpc-id"
-    values = [var.user_vpc_id]
-  }
-}
 data "aws_iam_role" "os_service_linked_role" {
   name = "AWSServiceRoleForAmazonOpenSearchService"
 }
+
 resource "aws_elasticsearch_domain" "es" {
   count = false == local.inside_vpc ? 1 : 0
 
@@ -122,7 +109,7 @@ resource "aws_elasticsearch_domain" "es" {
 
   vpc_options {
     subnet_ids = [var.user_subnet_id]
-    security_group_ids = [data.aws_security_groups.es.ids[0]]
+    security_group_ids = [ var.nac_es_securitygroup_id ]
   }
 
   tags = merge(
@@ -131,6 +118,7 @@ resource "aws_elasticsearch_domain" "es" {
     },
     var.tags,
   )
+  
 }
 
 resource "aws_elasticsearch_domain_policy" "es_management_access" {
@@ -222,3 +210,4 @@ locals {
 
   }
 }
+
