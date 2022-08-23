@@ -3,6 +3,7 @@
 ##  Project       :   Nasuni ElasticSearch Integration
 ##  Organization  :   Nasuni Labs   
 #########################################################
+
 ##main
 locals {
   domain_name = var.use_prefix ? join("", [lower(var.domain_prefix), lower(var.domain_name), "-", lower(random_id.es_unique_id.hex)]) : lower(var.domain_name)
